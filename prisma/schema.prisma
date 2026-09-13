@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("ADMIN")
+  createdAt DateTime @default(now())
+}
+
+model Member {
+  id               String   @id @default(cuid())
+  name             String
+  position         String?
+  attendanceNumber Int?
+  photo            String?
+  bio              String?
+  division         String?
+  orderIndex       Int      @default(0)
+  createdAt        DateTime @default(now())
+}
+
+model Announcement {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  category    String   @default("General")
+  author      String?
+  status      String   @default("published")
+  publishedAt DateTime @default(now())
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  date        DateTime
+  time        String?
+  location    String?
+  status      String   @default("upcoming")
+  createdAt   DateTime @default(now())
+}
+
+model Album {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String?
+  coverUrl    String?
+  createdAt   DateTime @default(now())
+  photos      Photo[]
+}
+
+model Photo {
+  id        String   @id @default(cuid())
+  albumId   String
+  fileUrl   String
+  caption   String?
+  takenAt   DateTime @default(now())
+  createdAt DateTime @default(now())
+  album     Album    @relation(fields: [albumId], references: [id], onDelete: Cascade)
+}
+
+model Project {
+  id            String   @id @default(cuid())
+  title         String
+  description   String
+  author        String
+  technologies  String
+  image         String?
+  demoUrl       String?
+  repositoryUrl String?
+  status        String   @default("in-progress")
+  createdAt     DateTime @default(now())
+}
+
+model Setting {
+  key   String @id
+  value String
+}

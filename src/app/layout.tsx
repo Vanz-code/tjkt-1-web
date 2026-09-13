@@ -1,0 +1,15 @@
+import type { Metadata } from 'next';
+import './globals.css';
+
+export const metadata: Metadata = {
+  title: 'TJKT 1 — Teknik Jaringan Komputer dan Telekomunikasi',
+  description: 'Website digital kelas TJKT 1',
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="id" className="dark">
+      <body className="font-sans min-h-screen">{children}</body>
+    </html>
+  );
+}
