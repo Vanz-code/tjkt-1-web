@@ -1,0 +1,4 @@
+import clsx, { type ClassValue } from 'clsx';
+export const cn = (...i: ClassValue[]) => clsx(i);
+export const slugify = (s: string) =>
+  s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
