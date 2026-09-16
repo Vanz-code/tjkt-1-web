@@ -11,6 +11,7 @@ const items = [
   { href: '/admin/agenda', label: 'Agenda' },
   { href: '/admin/gallery', label: 'Gallery' },
   { href: '/admin/projects', label: 'Projects' },
+  { href: '/admin/settings', label: 'Settings' },
 ];
 
 export function AdminShell({ children, userName }: { children: React.ReactNode; userName: string }) {
