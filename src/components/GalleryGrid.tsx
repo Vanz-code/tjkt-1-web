@@ -5,23 +5,53 @@ import { Lightbox } from './Lightbox';
 import { FadeIn } from './FadeIn';
 
 type Album = { id: string; title: string };
-type Photo = { id: string; albumId: string; fileUrl: string; caption?: string | null; takenAt: string };
+type Photo = {
+  id: string;
+  albumId: string;
+  fileUrl: string;
+  caption?: string | null;
+  takenAt: string;
+};
 
 export function GalleryGrid({ albums, photos }: { albums: Album[]; photos: Photo[] }) {
   const [album, setAlbum] = useState('all');
+  const [q, setQ] = useState('');
+  const [sort, setSort] = useState<'newest' | 'oldest'>('newest');
   const [lb, setLb] = useState<number | null>(null);
 
   const list = useMemo(() => {
-    return album === 'all' ? photos : photos.filter((p) => p.albumId === album);
-  }, [photos, album]);
+    let l = photos;
+    if (album !== 'all') l = l.filter((p) => p.albumId === album);
+    if (q.trim()) {
+      const k = q.toLowerCase().trim();
+      l = l.filter((p) => (p.caption ?? '').toLowerCase().includes(k));
+    }
+    return [...l].sort((a, b) => {
+      const da = new Date(a.takenAt).getTime();
+      const db = new Date(b.takenAt).getTime();
+      return sort === 'newest' ? db - da : da - db;
+    });
+  }, [photos, album, q, sort]);
 
   return (
     <>
+      {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3 mt-6">
+        <div className="relative flex-1">
+          <input
+            placeholder="Cari caption..."
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            className="w-full h-10 pl-10 pr-3 rounded-lg bg-surface border border-border outline-none text-sm focus:border-cyan-400 transition"
+          />
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm">
+            🔍
+          </span>
+        </div>
         <select
           value={album}
           onChange={(e) => setAlbum(e.target.value)}
-          className="w-full sm:w-64 h-10 px-3 rounded-lg bg-surface border border-border outline-none text-sm"
+          className="w-full sm:w-56 h-10 px-3 rounded-lg bg-surface border border-border outline-none text-sm"
         >
           <option value="all">Semua Album</option>
           {albums.map((a) => (
@@ -30,13 +60,27 @@ export function GalleryGrid({ albums, photos }: { albums: Album[]; photos: Photo
             </option>
           ))}
         </select>
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value as any)}
+          className="w-full sm:w-40 h-10 px-3 rounded-lg bg-surface border border-border outline-none text-sm"
+        >
+          <option value="newest">Terbaru</option>
+          <option value="oldest">Terlama</option>
+        </select>
       </div>
 
-      <div className="mt-6">
+      {/* Result count */}
+      <div className="mt-4 text-sm text-muted">
+        {list.length} foto ditemukan
+      </div>
+
+      {/* Grid */}
+      <div className="mt-4">
         {list.length ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             {list.map((p, i) => (
-              <FadeIn key={p.id} delay={i * 0.03}>
+              <FadeIn key={p.id} delay={i * 0.02}>
                 <button
                   onClick={() => setLb(i)}
                   className="group relative aspect-square rounded-xl overflow-hidden border border-border hover:border-cyan-400 transition-all duration-300 w-full"
@@ -59,7 +103,9 @@ export function GalleryGrid({ albums, photos }: { albums: Album[]; photos: Photo
           <div className="rounded-2xl border border-dashed border-border bg-surface/40 p-10 text-center">
             <div className="text-3xl mb-2">📷</div>
             <div className="font-semibold">Belum ada dokumentasi</div>
-            <p className="text-sm text-muted mt-1">Dokumentasi kelas akan muncul di sini.</p>
+            <p className="text-sm text-muted mt-1">
+              Dokumentasi kelas akan muncul di sini.
+            </p>
           </div>
         )}
       </div>
